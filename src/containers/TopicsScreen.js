@@ -4,8 +4,12 @@
 
 import React, {Component} from 'react';
 import autobind from 'react-autobind';
-import {connect} from 'remx/react';
 import './TopicsScreen.css';
+import {connect} from 'remx/react';
+import _ from 'lodash';
+
+import * as topicsActions from '../stores/topics/actions';
+import {selectors} from './../stores/topics/store';
 
 class TopicsScreen extends Component {
   constructor(props) {
@@ -13,8 +17,27 @@ class TopicsScreen extends Component {
     autobind(this);
   }
 
+  componentDidMount() {
+    topicsActions.fetchPosts();
+  }
+
   render() {
-    return this.renderLoading();
+    return (
+      <div className="TopicsScreen">
+        <h3>Choose 3 topics of interest</h3>
+        <ul>
+          {_.map(selectors.getAllTopics(), (topic) => this.renderTopic(topic))}
+        </ul>
+      </div>
+    );
+  }
+
+  renderTopic(topic) {
+    return (
+      <li key={topic.title}>
+        {topic.title}
+      </li>
+    );
   }
 
   renderLoading() {
