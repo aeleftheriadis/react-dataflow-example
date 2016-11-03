@@ -6,7 +6,9 @@ import React, {Component} from 'react';
 import autobind from 'react-autobind';
 import './TopicsScreen.css';
 import {connect} from 'remx/react';
-import _ from 'lodash';
+
+import ListView from '../components/ListView';
+import ListRow from '../components/ListRow';
 
 import * as topicsActions from '../stores/topics/actions';
 import {selectors} from './../stores/topics/store';
@@ -22,21 +24,38 @@ class TopicsScreen extends Component {
   }
 
   render() {
+    if (selectors.isLoading()) {
+      return this.renderLoading();
+    } else {
+      return this.renderTopics();
+    }
+  }
+
+  renderTopics() {
+    const allTopicsByUrl = selectors.getAllTopics();
+    const allTopicUrls = selectors.getAllTopicsUrls();
     return (
       <div className="TopicsScreen">
         <h3>Choose 3 topics of interest</h3>
-        <ul>
-          {_.map(selectors.getAllTopics(), (topic) => this.renderTopic(topic))}
-        </ul>
+        <ListView
+          rowsIdArray={allTopicUrls}
+          rowsById={allTopicsByUrl}
+          renderRow={this.renderTopic}
+        />
       </div>
     );
   }
 
-  renderTopic(topic) {
+  renderTopic(topicUrl, topic) {
     return (
-      <li key={topic.title}>
-        {topic.title}
-      </li>
+      <ListRow
+        rowId={topicUrl}
+        onClick={this.onRowClick}
+        selected={selectors.isSelected(topicUrl)}
+      >
+        <h3>{topic.title}</h3>
+        <p>{topic.description}</p>
+      </ListRow>
     );
   }
 
@@ -44,6 +63,10 @@ class TopicsScreen extends Component {
     return (
       <p>Loading...</p>
     );
+  }
+
+  onRowClick(topicUrl) {
+    alert(topicUrl);
   }
 }
 
